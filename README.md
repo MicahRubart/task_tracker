@@ -1,36 +1,100 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Workplan Tracker
 
-## Getting Started
+A team task tracker across departments. Built with Next.js 16, Tailwind CSS, Prisma 7, and Neon Postgres.
 
-First, run the development server:
+---
+
+## Features
+
+- 5 department tabs: Implementation, Web Services, Training, Conversion, Strategic Solutions
+- Add tasks with assignee, due date, and partners in seconds
+- Click any row to expand notes, due-date history, and linked tasks
+- Color coding: **yellow** = due this week, **red** = overdue
+- Filter by employee or click "My Tasks" for your own view
+- Admin mode: column sorting, task deletion, employee management
+- Task linking: Relates To / Blocks / Subtask Of relationships
+
+---
+
+## Quick Deploy (first time)
+
+### 1. Database — Neon
+
+1. Go to [neon.tech](https://neon.tech) and create a free account
+2. Create a new project (any name, any region)
+3. Copy the **connection string** — looks like `postgresql://user:pass@ep-xxx.neon.tech/neondb?sslmode=require`
+
+### 2. GitHub
+
+Push this repo to a new GitHub repository.
+
+### 3. Vercel
+
+1. Go to [vercel.com](https://vercel.com) → **Add New Project** → import your GitHub repo
+2. Before deploying, open **Environment Variables** and add:
+   - `DATABASE_URL` — the Neon connection string from step 1
+   - `ADMIN_PASSWORD` — choose any password for admin access
+3. Deploy
+
+### 4. Run the database migration
+
+After the first deploy, run the migration once to create tables:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Install Vercel CLI if you don't have it
+npm i -g vercel
+
+# Pull env vars locally
+vercel env pull .env.local
+
+# Run migration
+npx prisma migrate dev --name init
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 5. Add employees
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Open the deployed app
+2. Click the **Admin** button (top right) and enter your `ADMIN_PASSWORD`
+3. Click the **gear icon** that appears to open Employee Management
+4. Add each team member with their department
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## Local Development
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+# 1. Fill in DATABASE_URL and ADMIN_PASSWORD in .env.local
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# 2. Run migration
+npx prisma migrate dev --name init
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# 3. Start dev server
+npm run dev
+```
 
-## Deploy on Vercel
+Open [http://localhost:3000](http://localhost:3000).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## How to Use
+
+| Action | How |
+|---|---|
+| Sign in | Select your name from the dropdown (top left) |
+| Add a task | Click **+ Add Task** at the bottom of any department tab |
+| Edit a task | Double-click the title, due date, or status badge |
+| View notes & history | Click any row to expand it |
+| Add a note | Expand a row → type in the notes box |
+| Link tasks | Expand a row → click **+ Link task** |
+| Admin controls | Click **Admin** button → enter password |
+| Manage employees | Admin mode → gear icon |
+
+---
+
+## Color Key
+
+| Color | Meaning |
+|---|---|
+| Yellow row | Due this week |
+| Red row + "Overdue" badge | Past due date, not complete |
+| Normal | No urgency |
