@@ -7,7 +7,7 @@ import { TaskDetail } from "./TaskDetail";
 import { EmployeePill } from "./EmployeePill";
 import { ChangeDueDateModal } from "./ChangeDueDateModal";
 import { ChangeStatusModal } from "./ChangeStatusModal";
-import { getDueUrgency, URGENCY_CELL, formatDate, getStuckCountdown } from "@/lib/utils";
+import { getDueUrgency, getDaysUntilLabel, URGENCY_CELL, formatDate, getStuckCountdown } from "@/lib/utils";
 import type { FullTask } from "@/lib/types";
 
 interface Props {
@@ -33,9 +33,10 @@ export function TaskRow({ task, employees, isAdmin, colorMap }: Props) {
     return () => window.removeEventListener("wpt_employee_changed", handler);
   }, []);
 
-  const isComplete     = task.status === "COMPLETE";
-  const urgency        = getDueUrgency(task.dueDate, isComplete);
-  const urgencyStyle   = URGENCY_CELL[urgency];
+  const isComplete       = task.status === "COMPLETE";
+  const urgency          = getDueUrgency(task.dueDate, isComplete);
+  const urgencyStyle     = URGENCY_CELL[urgency];
+  const daysUntilLabel   = getDaysUntilLabel(task.dueDate, isComplete);
   const dateLocked     = task.dueDateHistory.length >= 1;
   const stuckCountdown = getStuckCountdown(task.stuckDeadline, task.status);
 
@@ -135,9 +136,9 @@ export function TaskRow({ task, employees, isAdmin, colorMap }: Props) {
               </svg>
               <div>
                 <span>{formatDate(task.dueDate)}</span>
-                {urgencyStyle.label && (
+                {daysUntilLabel && (
                   <span className="block text-xs font-bold uppercase tracking-wide opacity-75 leading-tight">
-                    {urgencyStyle.label}
+                    {daysUntilLabel}
                   </span>
                 )}
               </div>
@@ -150,9 +151,9 @@ export function TaskRow({ task, employees, isAdmin, colorMap }: Props) {
               title="Click to change due date (once only)"
             >
               <span>{formatDate(task.dueDate)}</span>
-              {urgencyStyle.label && (
+              {daysUntilLabel && (
                 <span className="text-xs font-bold uppercase tracking-wide opacity-75 leading-tight">
-                  {urgencyStyle.label}
+                  {daysUntilLabel}
                 </span>
               )}
             </div>

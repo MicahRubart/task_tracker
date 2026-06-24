@@ -1,62 +1,72 @@
-export function isOverdue(dueDate: Date | null | undefined): boolean {
-  if (!dueDate) return false;
-  const now = new Date();
-  now.setHours(0, 0, 0, 0);
-  return new Date(dueDate) < now;
+/**
+ * Normalizes a UTC-midnight date (as stored in the DB) to the equivalent
+ * local calendar date, avoiding the off-by-one day shift in negative-offset
+ * timezones (US timezones are UTC-4 to UTC-8).
+ */
+function toCalendarDate(date: Date): Date {
+  const d = new Date(date);
+  return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
 }
 
-export function isDueThisWeek(dueDate: Date | null | undefined): boolean {
-  if (!dueDate) return false;
-  const now = new Date();
-  const startOfWeek = new Date(now);
-  startOfWeek.setHours(0, 0, 0, 0);
-  startOfWeek.setDate(now.getDate() - now.getDay());
-  const endOfWeek = new Date(startOfWeek);
-  endOfWeek.setDate(startOfWeek.getDate() + 6);
-  endOfWeek.setHours(23, 59, 59, 999);
-  const d = new Date(dueDate);
-  return d >= startOfWeek && d <= endOfWeek;
+function localToday(): Date {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d;
 }
 
 export type DueUrgency =
   | "overdue"
-  | "tomorrow"   // 1 day
-  | "two-days"   // 2 days
-  | "four-days"  // 3–4 days
-  | "week"       // 5–7 days
+  | "tomorrow"
+  | "two-days"
+  | "four-days"
+  | "week"
   | "none";
 
-/** Returns how urgent a due date is. Returns "none" if no date or task is complete. */
 export function getDueUrgency(
   dueDate: Date | null | undefined,
   isComplete: boolean
 ): DueUrgency {
   if (!dueDate || isComplete) return "none";
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const due = new Date(dueDate);
-  due.setHours(0, 0, 0, 0);
+  const today = localToday();
+  const due = toCalendarDate(dueDate);
+  const daysUntil = Math.round((due.getTime() - today.getTime()) / 86400000);
 
-  const daysUntil = Math.round((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-
-  if (daysUntil < 0) return "overdue";
-  if (daysUntil === 0) return "tomorrow";   // due today = treat as tomorrow
-  if (daysUntil === 1) return "tomorrow";
-  if (daysUntil <= 2)  return "two-days";
-  if (daysUntil <= 4)  return "four-days";
-  if (daysUntil <= 7)  return "week";
+  if (daysUntil < 0)  return "overdue";
+  if (daysUntil <= 1) return "tomorrow";
+  if (daysUntil <= 2) return "two-days";
+  if (daysUntil <= 4) return "four-days";
+  if (daysUntil <= 7) return "week";
   return "none";
 }
 
-/** Tailwind classes for the due date cell based on urgency */
-export const URGENCY_CELL: Record<DueUrgency, { bg: string; text: string; label: string }> = {
-  overdue:    { bg: "bg-red-100",    text: "text-red-700 font-semibold",    label: "Overdue"   },
-  tomorrow:   { bg: "bg-red-50",     text: "text-red-600 font-semibold",    label: "Tomorrow"  },
-  "two-days": { bg: "bg-orange-100", text: "text-orange-700 font-semibold", label: "2 days"    },
-  "four-days":{ bg: "bg-yellow-100", text: "text-yellow-700 font-semibold", label: "4 days"    },
-  week:       { bg: "bg-yellow-50",  text: "text-yellow-600",               label: "This week" },
-  none:       { bg: "",              text: "text-gray-600",                  label: ""          },
+/**
+ * Returns the exact day-count label shown under the due date.
+ * Always shows a real number — no "This week" buckets.
+ */
+export function getDaysUntilLabel(
+  dueDate: Date | null | undefined,
+  isComplete: boolean
+): string {
+  if (!dueDate || isComplete) return "";
+
+  const today = localToday();
+  const due = toCalendarDate(dueDate);
+  const daysUntil = Math.round((due.getTime() - today.getTime()) / 86400000);
+
+  if (daysUntil < 0)   return "Overdue";
+  if (daysUntil === 0) return "Today";
+  if (daysUntil === 1) return "Tomorrow";
+  return `${daysUntil} days`;
+}
+
+export const URGENCY_CELL: Record<DueUrgency, { bg: string; text: string }> = {
+  overdue:    { bg: "bg-red-100",    text: "text-red-700 font-semibold"    },
+  tomorrow:   { bg: "bg-red-50",     text: "text-red-600 font-semibold"    },
+  "two-days": { bg: "bg-orange-100", text: "text-orange-700 font-semibold" },
+  "four-days":{ bg: "bg-yellow-100", text: "text-yellow-700 font-semibold" },
+  week:       { bg: "bg-yellow-50",  text: "text-yellow-600"               },
+  none:       { bg: "",              text: "text-gray-600"                  },
 };
 
 export type StuckCountdown =
@@ -64,29 +74,31 @@ export type StuckCountdown =
   | { days: number; overdue: true }
   | null;
 
-/** Returns days remaining until stuck deadline, or null if not applicable */
 export function getStuckCountdown(
   stuckDeadline: Date | null | undefined,
   status: string
 ): StuckCountdown {
   if (status !== "STUCK" || !stuckDeadline) return null;
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  const deadline = new Date(stuckDeadline); deadline.setHours(0, 0, 0, 0);
+  const today = localToday();
+  const deadline = toCalendarDate(stuckDeadline);
   const days = Math.round((deadline.getTime() - today.getTime()) / 86400000);
   return days < 0
     ? { days: Math.abs(days), overdue: true }
     : { days, overdue: false };
 }
 
+/** Formats a date-only value — uses UTC to match the stored date exactly */
 export function formatDate(date: Date | null | undefined): string {
   if (!date) return "—";
   return new Date(date).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
+    timeZone: "UTC",
   });
 }
 
+/** Formats a full datetime (notes, audit trail) — uses local time */
 export function formatDateTime(date: Date | string): string {
   return new Date(date).toLocaleDateString("en-US", {
     month: "short",
@@ -95,4 +107,18 @@ export function formatDateTime(date: Date | string): string {
     hour: "numeric",
     minute: "2-digit",
   });
+}
+
+export function isOverdue(dueDate: Date | null | undefined): boolean {
+  if (!dueDate) return false;
+  return toCalendarDate(dueDate) < localToday();
+}
+
+export function isDueThisWeek(dueDate: Date | null | undefined): boolean {
+  if (!dueDate) return false;
+  const today = localToday();
+  const in7 = new Date(today);
+  in7.setDate(today.getDate() + 7);
+  const due = toCalendarDate(dueDate);
+  return due >= today && due <= in7;
 }
