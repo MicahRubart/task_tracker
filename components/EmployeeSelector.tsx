@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Employee, Department } from "@/app/generated/prisma/client";
-import { colorForName } from "@/lib/colors";
+import { buildColorMap, colorFromIndex, colorForName } from "@/lib/colors";
 import { DEPARTMENTS } from "@/lib/departments";
 
 interface Props {
@@ -45,8 +45,13 @@ export function EmployeeSelector({ employees }: Props) {
 
   const deptLabel = DEPARTMENTS.find((d) => d.value === currentDept)?.label ?? null;
 
+  const colorMap = buildColorMap(visibleEmployees);
   const selectedEmployee = employees.find((e) => e.id === selected);
-  const color = selectedEmployee ? colorForName(selectedEmployee.name) : null;
+  const color = selectedEmployee
+    ? (colorMap[selectedEmployee.id] !== undefined
+        ? colorFromIndex(colorMap[selectedEmployee.id])
+        : colorForName(selectedEmployee.name))
+    : null;
 
   // If the selected employee isn't in this department, clear the visual indicator
   // but keep them stored so switching tabs restores their selection

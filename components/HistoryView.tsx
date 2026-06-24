@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { EmployeePill } from "./EmployeePill";
+import { buildColorMap } from "@/lib/colors";
 import { formatDate, formatDateTime } from "@/lib/utils";
 import type { FullTask } from "@/lib/types";
 import type { Employee } from "@/app/generated/prisma/client";
@@ -91,9 +92,11 @@ function exportCSV(tasks: FullTask[], employeeName: string, selectedId: string) 
 function TaskCard({
   task,
   selectedEmployeeId,
+  colorMap,
 }: {
   task: FullTask;
   selectedEmployeeId: string;
+  colorMap: Record<string, number>;
 }) {
   const [expanded, setExpanded] = useState(false);
   const isOwner = task.employeeId === selectedEmployeeId;
@@ -154,7 +157,7 @@ function TaskCard({
               <span className="flex items-center gap-1">
                 Partners:
                 {task.partners.map((p) => (
-                  <EmployeePill key={p.employeeId} name={p.employee.name} size="xs" />
+                  <EmployeePill key={p.employeeId} name={p.employee.name} size="xs" colorIndex={colorMap[p.employeeId]} />
                 ))}
               </span>
             )}
@@ -231,6 +234,7 @@ export function HistoryView({ employees, tasks, selectedEmployee }: Props) {
   const router = useRouter();
   const [groupBy, setGroupBy] = useState<GroupBy>("all");
   const [signedInId, setSignedInId] = useState("");
+  const colorMap = useMemo(() => buildColorMap(employees), [employees]);
 
   useEffect(() => {
     const id = localStorage.getItem("wpt_employee_id") ?? "";
@@ -373,7 +377,7 @@ export function HistoryView({ employees, tasks, selectedEmployee }: Props) {
 
             {/* Employee header */}
             <div className="flex items-center gap-2 mb-4">
-              <EmployeePill name={selectedEmployee.name} />
+              <EmployeePill name={selectedEmployee.name} colorIndex={colorMap[selectedEmployee.id]} />
               <span className="text-sm text-gray-500">
                 — showing all completed tasks (owned + partnered)
               </span>
@@ -421,6 +425,7 @@ export function HistoryView({ employees, tasks, selectedEmployee }: Props) {
                         key={task.id}
                         task={task}
                         selectedEmployeeId={effectiveEmployeeId}
+                        colorMap={colorMap}
                       />
                     ))}
                   </div>

@@ -14,10 +14,11 @@ interface Props {
   task: FullTask;
   employees: { id: string; name: string }[];
   isAdmin: boolean;
+  colorMap: Record<string, number>;
 }
 
 
-export function TaskRow({ task, employees, isAdmin }: Props) {
+export function TaskRow({ task, employees, isAdmin, colorMap }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [editingTitle, setEditingTitle] = useState(false);
   const [showDateModal, setShowDateModal]     = useState(false);
@@ -103,7 +104,7 @@ export function TaskRow({ task, employees, isAdmin }: Props) {
 
         {/* Assigned To */}
         <td className="py-2 px-3 whitespace-nowrap">
-          <EmployeePill name={task.employee.name} />
+          <EmployeePill name={task.employee.name} colorIndex={colorMap[task.employeeId]} />
         </td>
 
         {/* Partners */}
@@ -112,7 +113,7 @@ export function TaskRow({ task, employees, isAdmin }: Props) {
             {task.partners.length === 0
               ? <span className="text-gray-300 text-sm">—</span>
               : task.partners.map((p) => (
-                  <EmployeePill key={p.employeeId} name={p.employee.name} />
+                  <EmployeePill key={p.employeeId} name={p.employee.name} colorIndex={colorMap[p.employeeId]} />
                 ))
             }
           </div>

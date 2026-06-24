@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { TaskRow } from "./TaskRow";
 import { EmployeePill } from "./EmployeePill";
 import { getDueUrgency } from "@/lib/utils";
+import { buildColorMap } from "@/lib/colors";
 import type { FullTask } from "@/lib/types";
 import type { TaskStatus, Goal } from "@/app/generated/prisma/client";
 
@@ -52,6 +53,8 @@ interface Props {
 }
 
 export function TaskTable({ tasks, employees, goals }: Props) {
+  const colorMap = useMemo(() => buildColorMap(employees), [employees]);
+
   const [isAdmin, setIsAdmin]                 = useState(false);
   const [filterEmployeeId, setFilterEmployeeId] = useState("");
   const [myTasksOnly, setMyTasksOnly]         = useState(false);
@@ -246,7 +249,7 @@ export function TaskTable({ tasks, employees, goals }: Props) {
               className="transition-opacity"
               style={{ opacity: filterEmployeeId && filterEmployeeId !== emp.id ? 0.4 : 1 }}
             >
-              <EmployeePill name={emp.name} />
+              <EmployeePill name={emp.name} colorIndex={colorMap[emp.id]} />
             </button>
           ))}
         </div>
@@ -332,7 +335,7 @@ export function TaskTable({ tasks, employees, goals }: Props) {
               </tr>
             )}
             {active.map((task) => (
-              <TaskRow key={task.id} task={task} employees={employees} isAdmin={isAdmin} />
+              <TaskRow key={task.id} task={task} employees={employees} isAdmin={isAdmin} colorMap={colorMap} />
             ))}
 
             {/* Completed section divider */}
@@ -365,7 +368,7 @@ export function TaskTable({ tasks, employees, goals }: Props) {
 
             {/* Completed tasks (collapsed by default) */}
             {showCompleted && completed.map((task) => (
-              <TaskRow key={task.id} task={task} employees={employees} isAdmin={isAdmin} />
+              <TaskRow key={task.id} task={task} employees={employees} isAdmin={isAdmin} colorMap={colorMap} />
             ))}
           </tbody>
         </table>

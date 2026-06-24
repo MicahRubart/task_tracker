@@ -1,14 +1,15 @@
 "use client";
 
-import { colorForName } from "@/lib/colors";
+import { colorForName, colorFromIndex } from "@/lib/colors";
 
 interface Props {
   name: string;
   size?: "xs" | "sm" | "md";
+  colorIndex?: number;
 }
 
-export function EmployeePill({ name, size = "sm" }: Props) {
-  const color = colorForName(name);
+export function EmployeePill({ name, size = "sm", colorIndex }: Props) {
+  const color = colorIndex !== undefined ? colorFromIndex(colorIndex) : colorForName(name);
   const padding =
     size === "md" ? "px-2.5 py-1 text-sm" :
     size === "xs" ? "px-1.5 py-0.5 text-[10px]" :
