@@ -16,11 +16,11 @@ const EMPLOYEES: { name: string; departments: string[] }[] = [
   { name: "Denise Arechavaleta", departments: ["LEADERSHIP"] },  // was OPERATIONS
 
   // Web Services
-  { name: "Molly",      departments: ["WEB_SERVICES"] },
-  { name: "Scott",      departments: ["WEB_SERVICES"] },
-  { name: "Mataya",     departments: ["WEB_SERVICES"] },
-  { name: "Stephanie",  departments: ["WEB_SERVICES"] },
-  { name: "Ward",       departments: ["WEB_SERVICES"] },
+  { name: "Mataya Arnold",    departments: ["WEB_SERVICES"] },
+  { name: "Molly Joseph",     departments: ["WEB_SERVICES"] },
+  { name: "Scott Archer",     departments: ["WEB_SERVICES"] },
+  { name: "Stephanie Morales",departments: ["WEB_SERVICES"] },
+  { name: "Ward Larson",      departments: ["WEB_SERVICES"] },
 
   // Conversion
   { name: "Grace Wilkes",      departments: ["CONVERSION"] },
