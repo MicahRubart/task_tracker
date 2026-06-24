@@ -5,6 +5,16 @@ const adapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL! });
 const db = new PrismaClient({ adapter });
 
 const EMPLOYEES: { name: string; departments: string[] }[] = [
+  // Leadership (moved from other depts or new)
+  { name: "Micah Rubart",        departments: ["LEADERSHIP"] },
+  { name: "Theresa Klosterman",  departments: ["LEADERSHIP"] },
+  { name: "Nicole Farris",       departments: ["LEADERSHIP"] },
+  { name: "Ryan Perry",          departments: ["LEADERSHIP"] },  // was STRATEGIC_SOLUTIONS
+  { name: "Mark Davis",          departments: ["LEADERSHIP"] },  // was IMPLEMENTATION
+  { name: "Jon Wenzel",          departments: ["LEADERSHIP"] },  // was TRAINING
+  { name: "Ian Solcz",           departments: ["LEADERSHIP"] },
+  { name: "Denise Arechavaleta", departments: ["LEADERSHIP"] },  // was OPERATIONS
+
   // Web Services
   { name: "Molly",      departments: ["WEB_SERVICES"] },
   { name: "Scott",      departments: ["WEB_SERVICES"] },
@@ -12,7 +22,7 @@ const EMPLOYEES: { name: string; departments: string[] }[] = [
   { name: "Stephanie",  departments: ["WEB_SERVICES"] },
   { name: "Ward",       departments: ["WEB_SERVICES"] },
 
-  // Conversions
+  // Conversion
   { name: "Grace Wilkes",      departments: ["CONVERSION"] },
   { name: "Joshua Sorsby",     departments: ["CONVERSION"] },
   { name: "Forster McLane",    departments: ["CONVERSION"] },
@@ -24,12 +34,11 @@ const EMPLOYEES: { name: string; departments: string[] }[] = [
   { name: "Nicolas Adkins",    departments: ["CONVERSION"] },
   { name: "Cory North",        departments: ["CONVERSION"] },
 
-  // Operations
-  { name: "Denise Arechavaleta", departments: ["OPERATIONS"] },
+  // Operations (Denise moved to Leadership above)
   { name: "Cassandra Cosgrove",  departments: ["OPERATIONS"] },
   { name: "Carla Clark",         departments: ["OPERATIONS"] },
 
-  // Implementation
+  // Implementation (Mark Davis moved to Leadership above)
   { name: "Steve Pickering",   departments: ["IMPLEMENTATION"] },
   { name: "Krista Goergen",    departments: ["IMPLEMENTATION"] },
   { name: "Kael Zaczkiewicz",  departments: ["IMPLEMENTATION"] },
@@ -51,29 +60,26 @@ const EMPLOYEES: { name: string; departments: string[] }[] = [
   { name: "Chris McElvy",      departments: ["IMPLEMENTATION"] },
   { name: "Tory Argenzia",     departments: ["IMPLEMENTATION"] },
   { name: "Jalisha Lewis",     departments: ["IMPLEMENTATION"] },
-  { name: "Mark Davis",        departments: ["IMPLEMENTATION"] },
 
-  // Training
-  { name: "Lenore Jaquin",     departments: ["TRAINING"] },
-  { name: "Jon Wenzel",        departments: ["TRAINING"] },
-  { name: "Wanda Lewis",       departments: ["TRAINING"] },
+  // Training (Jon Wenzel moved to Leadership above)
+  { name: "Lenore Jaquin",       departments: ["TRAINING"] },
+  { name: "Wanda Lewis",         departments: ["TRAINING"] },
   { name: "Heather Leszczynski", departments: ["TRAINING"] },
-  { name: "Susan Kim",         departments: ["TRAINING"] },
-  { name: "Tanya Kaufmann",    departments: ["TRAINING"] },
-  { name: "Rama Brown",        departments: ["TRAINING"] },
-  { name: "Juan Colombi",      departments: ["TRAINING"] },
-  { name: "Hanh Nguyen",       departments: ["TRAINING"] },
-  { name: "Germayne Shaw",     departments: ["TRAINING"] },
-  { name: "Collin Higgins",    departments: ["TRAINING"] },
-  { name: "Keith Coiscou",     departments: ["TRAINING"] },
-  { name: "Marcia Polanco",    departments: ["TRAINING"] },
-  { name: "Joseph Russell",    departments: ["TRAINING"] },
-  { name: "London Beveridge",  departments: ["TRAINING"] },
-  { name: "Diana Hernandez",   departments: ["TRAINING"] },
-  { name: "Felicity Arkins",   departments: ["TRAINING"] },
+  { name: "Susan Kim",           departments: ["TRAINING"] },
+  { name: "Tanya Kaufmann",      departments: ["TRAINING"] },
+  { name: "Rama Brown",          departments: ["TRAINING"] },
+  { name: "Juan Colombi",        departments: ["TRAINING"] },
+  { name: "Hanh Nguyen",         departments: ["TRAINING"] },
+  { name: "Germayne Shaw",       departments: ["TRAINING"] },
+  { name: "Collin Higgins",      departments: ["TRAINING"] },
+  { name: "Keith Coiscou",       departments: ["TRAINING"] },
+  { name: "Marcia Polanco",      departments: ["TRAINING"] },
+  { name: "Joseph Russell",      departments: ["TRAINING"] },
+  { name: "London Beveridge",    departments: ["TRAINING"] },
+  { name: "Diana Hernandez",     departments: ["TRAINING"] },
+  { name: "Felicity Arkins",     departments: ["TRAINING"] },
 
-  // Strategic Solutions
-  { name: "Ryan Perry",        departments: ["STRATEGIC_SOLUTIONS"] },
+  // Strategic Solutions (Ryan Perry moved to Leadership above)
   { name: "Reed Reimers",      departments: ["STRATEGIC_SOLUTIONS"] },
   { name: "Euliza Connolly",   departments: ["STRATEGIC_SOLUTIONS"] },
   { name: "Tyler Weaver",      departments: ["STRATEGIC_SOLUTIONS"] },

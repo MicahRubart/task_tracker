@@ -97,6 +97,7 @@ enum Department {
   CONVERSION
   STRATEGIC_SOLUTIONS
   OPERATIONS
+  LEADERSHIP
 }
 
 enum TaskStatus {

@@ -1,4 +1,5 @@
 export const DEPARTMENTS = [
+  { slug: "leadership",         label: "Leadership",         value: "LEADERSHIP"         },
   { slug: "implementation",     label: "Implementation",     value: "IMPLEMENTATION"     },
   { slug: "web-services",       label: "Web Services",       value: "WEB_SERVICES"       },
   { slug: "training",           label: "Training",           value: "TRAINING"           },
