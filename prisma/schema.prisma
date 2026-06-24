@@ -96,6 +96,7 @@ enum Department {
   IMPLEMENTATION
   CONVERSION
   STRATEGIC_SOLUTIONS
+  OPERATIONS
 }
 
 enum TaskStatus {

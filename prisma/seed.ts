@@ -24,6 +24,11 @@ const EMPLOYEES: { name: string; departments: string[] }[] = [
   { name: "Nicolas Adkins",    departments: ["CONVERSION"] },
   { name: "Cory North",        departments: ["CONVERSION"] },
 
+  // Operations
+  { name: "Denise Arechavaleta", departments: ["OPERATIONS"] },
+  { name: "Cassandra Cosgrove",  departments: ["OPERATIONS"] },
+  { name: "Carla Clark",         departments: ["OPERATIONS"] },
+
   // Implementation
   { name: "Steve Pickering",   departments: ["IMPLEMENTATION"] },
   { name: "Krista Goergen",    departments: ["IMPLEMENTATION"] },
@@ -46,6 +51,38 @@ const EMPLOYEES: { name: string; departments: string[] }[] = [
   { name: "Chris McElvy",      departments: ["IMPLEMENTATION"] },
   { name: "Tory Argenzia",     departments: ["IMPLEMENTATION"] },
   { name: "Jalisha Lewis",     departments: ["IMPLEMENTATION"] },
+  { name: "Mark Davis",        departments: ["IMPLEMENTATION"] },
+
+  // Training
+  { name: "Lenore Jaquin",     departments: ["TRAINING"] },
+  { name: "Jon Wenzel",        departments: ["TRAINING"] },
+  { name: "Wanda Lewis",       departments: ["TRAINING"] },
+  { name: "Heather Leszczynski", departments: ["TRAINING"] },
+  { name: "Susan Kim",         departments: ["TRAINING"] },
+  { name: "Tanya Kaufmann",    departments: ["TRAINING"] },
+  { name: "Rama Brown",        departments: ["TRAINING"] },
+  { name: "Juan Colombi",      departments: ["TRAINING"] },
+  { name: "Hanh Nguyen",       departments: ["TRAINING"] },
+  { name: "Germayne Shaw",     departments: ["TRAINING"] },
+  { name: "Collin Higgins",    departments: ["TRAINING"] },
+  { name: "Keith Coiscou",     departments: ["TRAINING"] },
+  { name: "Marcia Polanco",    departments: ["TRAINING"] },
+  { name: "Joseph Russell",    departments: ["TRAINING"] },
+  { name: "London Beveridge",  departments: ["TRAINING"] },
+  { name: "Diana Hernandez",   departments: ["TRAINING"] },
+  { name: "Felicity Arkins",   departments: ["TRAINING"] },
+
+  // Strategic Solutions
+  { name: "Ryan Perry",        departments: ["STRATEGIC_SOLUTIONS"] },
+  { name: "Reed Reimers",      departments: ["STRATEGIC_SOLUTIONS"] },
+  { name: "Euliza Connolly",   departments: ["STRATEGIC_SOLUTIONS"] },
+  { name: "Tyler Weaver",      departments: ["STRATEGIC_SOLUTIONS"] },
+  { name: "Phyllis Fernandez", departments: ["STRATEGIC_SOLUTIONS"] },
+  { name: "Ros Rossi",         departments: ["STRATEGIC_SOLUTIONS"] },
+  { name: "Bree Elliott",      departments: ["STRATEGIC_SOLUTIONS"] },
+  { name: "Derrek Shank",      departments: ["STRATEGIC_SOLUTIONS"] },
+  { name: "Kayla Schrenk",     departments: ["STRATEGIC_SOLUTIONS"] },
+  { name: "Emma Stickney",     departments: ["STRATEGIC_SOLUTIONS"] },
 ];
 
 async function main() {
@@ -60,7 +97,7 @@ async function main() {
     console.log(`  ✓ ${emp.name} (${emp.departments.join(", ")})`);
   }
 
-  console.log(`\nDone. ${EMPLOYEES.length} employees seeded.`);
+  console.log(`\nDone. ${EMPLOYEES.length} employees upserted.`);
 }
 
 main()
