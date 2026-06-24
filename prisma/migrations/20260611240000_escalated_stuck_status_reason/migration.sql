@@ -1,0 +1,8 @@
+-- Add ESCALATED to TaskStatus enum
+ALTER TYPE "TaskStatus" ADD VALUE IF NOT EXISTS 'ESCALATED';
+
+-- Add STATUS_CHANGE to NoteType enum
+ALTER TYPE "NoteType" ADD VALUE IF NOT EXISTS 'STATUS_CHANGE';
+
+-- Add stuckDeadline to Task
+ALTER TABLE "Task" ADD COLUMN IF NOT EXISTS "stuckDeadline" TIMESTAMP(3);

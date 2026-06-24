@@ -10,7 +10,7 @@ datasource db {
 model Employee {
   id          String           @id @default(cuid())
   name        String           @unique
-  department  Department
+  departments Department[]
   active      Boolean          @default(true)
   createdAt   DateTime         @default(now())
   tasks       Task[]           @relation("TaskOwner")
@@ -19,14 +19,27 @@ model Employee {
   dateChanges DueDateHistory[]
 }
 
+model Goal {
+  id          String     @id @default(cuid())
+  title       String
+  department  Department
+  description String?
+  active      Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  tasks       Task[]
+}
+
 model Task {
   id             String           @id @default(cuid())
   title          String
   department     Department
   employeeId     String
   employee       Employee         @relation("TaskOwner", fields: [employeeId], references: [id])
+  goalId         String?
+  goal           Goal?            @relation(fields: [goalId], references: [id])
   dueDate        DateTime?
   status         TaskStatus       @default(NOT_STARTED)
+  stuckDeadline  DateTime?
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
   partners       TaskPartner[]
@@ -52,18 +65,20 @@ model TaskNote {
   body      String
   authorId  String
   author    Employee @relation(fields: [authorId], references: [id])
+  noteType  NoteType @default(REGULAR)
   createdAt DateTime @default(now())
 }
 
 model DueDateHistory {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   taskId      String
-  task        Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  task        Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
   oldDate     DateTime?
   newDate     DateTime?
+  reason      String
   changedById String
-  changedBy   Employee @relation(fields: [changedById], references: [id])
-  changedAt   DateTime @default(now())
+  changedBy   Employee  @relation(fields: [changedById], references: [id])
+  changedAt   DateTime  @default(now())
 }
 
 model TaskLink {
@@ -85,13 +100,53 @@ enum Department {
 
 enum TaskStatus {
   NOT_STARTED
-  IN_PROGRESS
-  BLOCKED
+  STARTED
+  STUCK
+  ON_TRACK
+  OFF_TRACK
+  ESCALATED
   COMPLETE
+}
+
+enum NoteType {
+  REGULAR
+  DATE_CHANGE
+  STATUS_CHANGE
 }
 
 enum LinkType {
   RELATES_TO
   BLOCKS
   SUBTASK_OF
+}
+
+model DepartmentSettings {
+  department      Department @id
+  teamsWebhookUrl String?
+}
+
+model NotificationRule {
+  id              String            @id @default(cuid())
+  department      Department
+  name            String
+  triggerType     TriggerType
+  triggerDays     Int
+  messageTemplate String
+  active          Boolean           @default(true)
+  createdAt       DateTime          @default(now())
+  logs            NotificationLog[]
+}
+
+model NotificationLog {
+  id      String           @id @default(cuid())
+  ruleId  String
+  rule    NotificationRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  taskId  String
+  sentAt  DateTime         @default(now())
+}
+
+enum TriggerType {
+  OVERDUE_BY_DAYS
+  DUE_IN_DAYS
+  NO_UPDATE_IN_DAYS
 }

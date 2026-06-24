@@ -1,11 +1,13 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { updateTask, deleteTask } from "@/app/actions/tasks";
 import { StatusBadge } from "./StatusBadge";
 import { TaskDetail } from "./TaskDetail";
-import { isOverdue, isDueThisWeek, formatDate } from "@/lib/utils";
-import { TaskStatus, Department } from "@/app/generated/prisma/client";
+import { EmployeePill } from "./EmployeePill";
+import { ChangeDueDateModal } from "./ChangeDueDateModal";
+import { ChangeStatusModal } from "./ChangeStatusModal";
+import { getDueUrgency, URGENCY_CELL, formatDate, getStuckCountdown } from "@/lib/utils";
 import type { FullTask } from "@/lib/types";
 
 interface Props {
@@ -14,11 +16,12 @@ interface Props {
   isAdmin: boolean;
 }
 
-const STATUS_OPTIONS: TaskStatus[] = ["NOT_STARTED", "IN_PROGRESS", "BLOCKED", "COMPLETE"];
 
 export function TaskRow({ task, employees, isAdmin }: Props) {
   const [expanded, setExpanded] = useState(false);
-  const [editing, setEditing] = useState<null | "title" | "dueDate" | "status" | "assignee" | "partners">(null);
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [showDateModal, setShowDateModal]     = useState(false);
+  const [showStatusModal, setShowStatusModal] = useState(false);
   const [currentEmployeeId, setCurrentEmployeeId] = useState("");
 
   useEffect(() => {
@@ -29,141 +32,165 @@ export function TaskRow({ task, employees, isAdmin }: Props) {
     return () => window.removeEventListener("wpt_employee_changed", handler);
   }, []);
 
-  const overdue = isOverdue(task.dueDate) && task.status !== "COMPLETE";
-  const dueThisWeek = !overdue && isDueThisWeek(task.dueDate) && task.status !== "COMPLETE";
-
-  const rowBg = overdue
-    ? "bg-red-50 hover:bg-red-100"
-    : dueThisWeek
-    ? "bg-yellow-50 hover:bg-yellow-100"
-    : "bg-white hover:bg-gray-50";
+  const isComplete     = task.status === "COMPLETE";
+  const urgency        = getDueUrgency(task.dueDate, isComplete);
+  const urgencyStyle   = URGENCY_CELL[urgency];
+  const dateLocked     = task.dueDateHistory.length >= 1;
+  const stuckCountdown = getStuckCountdown(task.stuckDeadline, task.status);
 
   async function handleTitleBlur(e: React.FocusEvent<HTMLInputElement>) {
     const val = e.target.value.trim();
     if (val && val !== task.title) {
       await updateTask(task.id, currentEmployeeId || task.employeeId, { title: val });
     }
-    setEditing(null);
+    setEditingTitle(false);
   }
 
-  async function handleStatusChange(status: TaskStatus) {
-    await updateTask(task.id, currentEmployeeId || task.employeeId, { status });
-    setEditing(null);
-  }
-
-  async function handleDueDateBlur(e: React.FocusEvent<HTMLInputElement>) {
-    const val = e.target.value || null;
-    await updateTask(task.id, currentEmployeeId || task.employeeId, { dueDate: val });
-    setEditing(null);
-  }
-
-  async function handleAssigneeChange(employeeId: string) {
-    await updateTask(task.id, currentEmployeeId || task.employeeId, {});
-    setEditing(null);
-    // Reassignment handled via separate flow; for now close
-  }
+  // Status is now changed via modal — no inline handler needed
 
   async function handleDeleteTask() {
     if (!confirm(`Delete "${task.title}"? This cannot be undone.`)) return;
     await deleteTask(task.id);
   }
 
-  const partnerNames = task.partners.map((p) => p.employee.name).join(", ");
-
   return (
     <>
       <tr
-        className={`border-b border-gray-100 transition-colors cursor-pointer select-none ${rowBg}`}
+        className="border-b border-gray-100 transition-colors cursor-pointer select-none bg-white hover:bg-gray-50"
         onClick={() => setExpanded((v) => !v)}
       >
-        {/* Expand indicator */}
+        {/* Expand chevron */}
         <td className="w-6 pl-3 py-3">
           <svg
             className={`w-3.5 h-3.5 text-gray-400 transition-transform ${expanded ? "rotate-90" : ""}`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24"
           >
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
         </td>
 
-        {/* Title */}
-        <td className="py-3 px-3 max-w-xs" onClick={(e) => e.stopPropagation()}>
-          {editing === "title" ? (
+        {/* Title + goal badge */}
+        <td className="py-2 px-3 max-w-xs" onClick={(e) => e.stopPropagation()}>
+          {editingTitle ? (
             <input
               autoFocus
               defaultValue={task.title}
               onBlur={handleTitleBlur}
-              onKeyDown={(e) => e.key === "Escape" && setEditing(null)}
-              className="w-full border-b border-indigo-400 bg-transparent focus:outline-none text-sm"
+              onKeyDown={(e) => e.key === "Escape" && setEditingTitle(false)}
+              className="w-full border-b-2 border-indigo-400 bg-transparent focus:outline-none text-sm"
               onClick={(e) => e.stopPropagation()}
             />
           ) : (
-            <span
-              className="text-sm text-gray-900 font-medium cursor-text"
-              onDoubleClick={() => setEditing("title")}
-              title="Double-click to edit"
-            >
-              {task.title}
-            </span>
-          )}
-          {overdue && (
-            <span className="ml-2 text-xs text-red-600 font-medium">Overdue</span>
+            <div>
+              <span
+                className="text-sm text-gray-900 font-medium cursor-text block"
+                onDoubleClick={() => setEditingTitle(true)}
+                title="Double-click to edit"
+              >
+                {task.title}
+              </span>
+              {task.goal && (
+                <span className="inline-flex items-center gap-1 mt-0.5 text-xs text-indigo-600 bg-indigo-50 border border-indigo-100 rounded-full px-2 py-0.5">
+                  <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
+                  </svg>
+                  {task.goal.title}
+                </span>
+              )}
+            </div>
           )}
         </td>
 
         {/* Assigned To */}
-        <td className="py-3 px-3 text-sm text-gray-700 whitespace-nowrap">
-          {task.employee.name}
+        <td className="py-2 px-3 whitespace-nowrap">
+          <EmployeePill name={task.employee.name} />
         </td>
 
         {/* Partners */}
-        <td className="py-3 px-3 text-sm text-gray-500 max-w-[160px] truncate">
-          {partnerNames || <span className="text-gray-300">â€”</span>}
+        <td className="py-2 px-3">
+          <div className="flex flex-wrap gap-1">
+            {task.partners.length === 0
+              ? <span className="text-gray-300 text-sm">—</span>
+              : task.partners.map((p) => (
+                  <EmployeePill key={p.employeeId} name={p.employee.name} />
+                ))
+            }
+          </div>
         </td>
 
-        {/* Due Date */}
-        <td className="py-3 px-3 text-sm whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
-          {editing === "dueDate" ? (
-            <input
-              autoFocus
-              type="date"
-              defaultValue={task.dueDate ? new Date(task.dueDate).toISOString().slice(0, 10) : ""}
-              onBlur={handleDueDateBlur}
-              onKeyDown={(e) => e.key === "Escape" && setEditing(null)}
-              className="border-b border-indigo-400 bg-transparent focus:outline-none text-sm"
-            />
+        {/* Due Date — locked or clickable */}
+        <td
+          className={`py-1 px-1 text-sm whitespace-nowrap ${urgencyStyle.bg}`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {dateLocked ? (
+            /* Locked — show date with a lock icon, not clickable */
+            <div className={`flex items-center gap-1.5 px-2 py-1.5 rounded ${urgencyStyle.text}`}>
+              <svg
+                className="w-3 h-3 text-gray-400 shrink-0"
+                fill="currentColor" viewBox="0 0 20 20"
+              >
+                <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+              </svg>
+              <div>
+                <span>{formatDate(task.dueDate)}</span>
+                {urgencyStyle.label && (
+                  <span className="block text-xs font-bold uppercase tracking-wide opacity-75 leading-tight">
+                    {urgencyStyle.label}
+                  </span>
+                )}
+              </div>
+            </div>
           ) : (
-            <span
-              className={`cursor-text ${overdue ? "text-red-700 font-medium" : dueThisWeek ? "text-yellow-700 font-medium" : "text-gray-700"}`}
-              onDoubleClick={() => setEditing("dueDate")}
-              title="Double-click to edit"
+            /* Unlocked — click to open modal */
+            <div
+              className={`flex flex-col items-start px-2 py-1.5 rounded cursor-pointer hover:opacity-80 transition-opacity ${urgencyStyle.text}`}
+              onClick={(e) => { e.stopPropagation(); setShowDateModal(true); }}
+              title="Click to change due date (once only)"
             >
-              {formatDate(task.dueDate)}
-            </span>
+              <span>{formatDate(task.dueDate)}</span>
+              {urgencyStyle.label && (
+                <span className="text-xs font-bold uppercase tracking-wide opacity-75 leading-tight">
+                  {urgencyStyle.label}
+                </span>
+              )}
+            </div>
           )}
         </td>
 
-        {/* Status */}
-        <td className="py-3 px-3" onClick={(e) => e.stopPropagation()}>
-          {editing === "status" ? (
-            <select
-              autoFocus
-              defaultValue={task.status}
-              onChange={(e) => handleStatusChange(e.target.value as TaskStatus)}
-              onBlur={() => setEditing(null)}
-              className="text-xs border border-gray-300 rounded-md px-1 py-0.5 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        {/* Status + stuck countdown */}
+        <td className="py-2 px-3" onClick={(e) => e.stopPropagation()}>
+          <div className="flex flex-col gap-1">
+            <span
+              onClick={(e) => { e.stopPropagation(); setShowStatusModal(true); }}
+              title="Click to change status"
+              className="cursor-pointer inline-block"
             >
-              {STATUS_OPTIONS.map((s) => (
-                <option key={s} value={s}>{s.replace("_", " ")}</option>
-              ))}
-            </select>
-          ) : (
-            <span onDoubleClick={() => setEditing("status")} title="Double-click to edit" className="cursor-pointer">
               <StatusBadge status={task.status} />
             </span>
-          )}
+            {stuckCountdown && (
+              <span
+                className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full ${
+                  stuckCountdown.overdue
+                    ? "bg-red-600 text-white"
+                    : stuckCountdown.days <= 1
+                    ? "bg-red-100 text-red-700"
+                    : stuckCountdown.days <= 2
+                    ? "bg-orange-100 text-orange-700"
+                    : "bg-yellow-100 text-yellow-700"
+                }`}
+              >
+                <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {stuckCountdown.overdue
+                  ? `${stuckCountdown.days}d overdue`
+                  : stuckCountdown.days === 0
+                  ? "Due today"
+                  : `${stuckCountdown.days}d left`}
+              </span>
+            )}
+          </div>
         </td>
 
         {/* Last Updated */}
@@ -188,13 +215,32 @@ export function TaskRow({ task, employees, isAdmin }: Props) {
       </tr>
 
       {expanded && (
-        <tr className={overdue ? "bg-red-50" : dueThisWeek ? "bg-yellow-50" : "bg-gray-50"}>
+        <tr className="bg-gray-50">
           <td colSpan={8} className="p-0">
             <TaskDetail task={task} currentEmployeeId={currentEmployeeId} />
           </td>
         </tr>
       )}
+
+      {showStatusModal && (
+        <ChangeStatusModal
+          taskId={task.id}
+          taskTitle={task.title}
+          currentStatus={task.status}
+          currentEmployeeId={currentEmployeeId}
+          onClose={() => setShowStatusModal(false)}
+        />
+      )}
+
+      {showDateModal && (
+        <ChangeDueDateModal
+          taskId={task.id}
+          taskTitle={task.title}
+          currentDate={task.dueDate}
+          currentEmployeeId={currentEmployeeId}
+          onClose={() => setShowDateModal(false)}
+        />
+      )}
     </>
   );
 }
-
