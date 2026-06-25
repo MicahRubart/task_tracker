@@ -265,9 +265,9 @@ export function AddTaskBar({ department, employees, allEmployees, goals }: Props
               })}
             </div>
 
-            {/* Dropdown results */}
+            {/* Dropdown results — opens to the right to avoid going off the bottom of the page */}
             {searchOpen && searchResults.length > 0 && (
-              <div className="absolute left-0 top-full mt-1 z-20 w-72 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+              <div className="absolute left-full top-0 ml-2 z-20 w-72 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
                 <div className="max-h-48 overflow-y-auto">
                   {searchResults.map((e) => {
                     const picked = partnerIds.includes(e.id);
