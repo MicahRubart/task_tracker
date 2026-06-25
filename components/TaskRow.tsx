@@ -78,19 +78,30 @@ export function TaskRow({ task, employees, isAdmin, colorMap }: Props) {
               autoFocus
               defaultValue={task.title}
               onBlur={handleTitleBlur}
-              onKeyDown={(e) => e.key === "Escape" && setEditingTitle(false)}
-              className="w-full border-b-2 border-indigo-400 bg-transparent focus:outline-none text-sm"
+              onKeyDown={(e) => {
+                if (e.key === "Escape") setEditingTitle(false);
+                if (e.key === "Enter") e.currentTarget.blur();
+              }}
+              className="w-full border-b-2 border-indigo-400 bg-transparent focus:outline-none text-sm font-medium"
               onClick={(e) => e.stopPropagation()}
             />
           ) : (
-            <div>
-              <span
-                className="text-sm text-gray-900 font-medium cursor-text block"
-                onDoubleClick={() => setEditingTitle(true)}
-                title="Double-click to edit"
-              >
-                {task.title}
-              </span>
+            <div className="group/title">
+              <div className="flex items-center gap-1.5">
+                <span className="text-sm text-gray-900 font-medium">
+                  {task.title}
+                </span>
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setEditingTitle(true); }}
+                  className="opacity-0 group-hover/title:opacity-100 transition-opacity p-0.5 rounded hover:bg-indigo-50 text-gray-400 hover:text-indigo-600 shrink-0"
+                  title="Edit task title"
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                  </svg>
+                </button>
+              </div>
               {task.goal && (
                 <span className="inline-flex items-center gap-1 mt-0.5 text-xs text-indigo-600 bg-indigo-50 border border-indigo-100 rounded-full px-2 py-0.5">
                   <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20">
