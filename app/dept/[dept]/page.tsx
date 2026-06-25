@@ -1,14 +1,11 @@
 import { notFound } from "next/navigation";
 import { deptFromSlug } from "@/lib/departments";
 import { getTasksForDept } from "@/app/actions/tasks";
-import { getEmployeesForDept } from "@/app/actions/employees";
+import { getEmployees, getEmployeesForDept } from "@/app/actions/employees";
 import { getGoalsForDept } from "@/app/actions/goals";
 import { TaskTable } from "@/components/TaskTable";
 import { AddTaskBar } from "@/components/AddTaskBar";
-import { GoalManager } from "@/components/GoalManager";
 import { Department } from "@/app/generated/prisma/client";
-
-// GoalManager needs isAdmin from the client — wrap it in a client shell
 import { AdminGoalManager } from "@/components/AdminGoalManager";
 
 interface Props {
@@ -22,9 +19,10 @@ export default async function DeptPage({ params }: Props) {
 
   const department = deptConfig.value as Department;
 
-  const [tasks, employees, goals] = await Promise.all([
+  const [tasks, employees, allEmployees, goals] = await Promise.all([
     getTasksForDept(department),
     getEmployeesForDept(department),
+    getEmployees(),
     getGoalsForDept(department),
   ]);
 
@@ -34,7 +32,7 @@ export default async function DeptPage({ params }: Props) {
       <div className="flex-1 overflow-hidden flex flex-col">
         <TaskTable tasks={tasks} employees={employees} goals={goals} />
       </div>
-      <AddTaskBar department={department} employees={employees} goals={goals} />
+      <AddTaskBar department={department} employees={employees} allEmployees={allEmployees} goals={goals} />
     </div>
   );
 }
