@@ -227,69 +227,69 @@ export function AddTaskBar({ department, employees, allEmployees, goals }: Props
           )}
 
           {/* Cross-department search */}
-          <div ref={searchContainerRef} className="relative">
-            <div className="flex items-center gap-2">
-              <div className="relative flex-1 max-w-xs">
-                <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                <input
-                  ref={searchRef}
-                  type="text"
-                  value={search}
-                  onChange={(e) => { setSearch(e.target.value); setSearchOpen(true); }}
-                  onFocus={() => setSearchOpen(true)}
-                  placeholder="Add partner from another department..."
-                  className="w-full border border-gray-300 rounded-md pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white"
-                />
-              </div>
-              {/* Selected cross-dept partner pills */}
-              {selectedOtherPartners.map((e) => {
-                const color = colorForName(e.name);
-                return (
-                  <span
-                    key={e.id}
-                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${color.bg} ${color.text} ${color.border}`}
-                  >
-                    <span className={`w-1.5 h-1.5 rounded-full ${color.dot}`} />
-                    {e.name}
-                    <button
-                      type="button"
-                      onClick={() => togglePartner(e.id)}
-                      className="ml-0.5 hover:opacity-60 leading-none"
-                    >
-                      ×
-                    </button>
-                  </span>
-                );
-              })}
+          <div ref={searchContainerRef} className="flex items-center gap-2">
+            {/* Input anchors the dropdown — relative is on this wrapper */}
+            <div className="relative flex-none w-64">
+              <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                ref={searchRef}
+                type="text"
+                value={search}
+                onChange={(e) => { setSearch(e.target.value); setSearchOpen(true); }}
+                onFocus={() => setSearchOpen(true)}
+                placeholder="Add partner from another department..."
+                className="w-full border border-gray-300 rounded-md pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white"
+              />
+
+              {/* Dropdown anchored to the right edge of this input */}
+              {searchOpen && searchResults.length > 0 && (
+                <div className="absolute left-full top-0 ml-2 z-20 w-72 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+                  <div className="max-h-48 overflow-y-auto">
+                    {searchResults.map((e) => {
+                      const picked = partnerIds.includes(e.id);
+                      const color = colorForName(e.name);
+                      return (
+                        <button
+                          key={e.id}
+                          type="button"
+                          onMouseDown={(ev) => { ev.preventDefault(); togglePartner(e.id); setSearch(""); setSearchOpen(false); }}
+                          className={`w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-indigo-50 transition-colors ${picked ? "bg-indigo-50" : ""}`}
+                        >
+                          <span className="flex items-center gap-2">
+                            <span className={`w-2 h-2 rounded-full ${color.dot}`} />
+                            <span className="font-medium text-gray-800">{e.name}</span>
+                          </span>
+                          <span className="text-xs text-gray-400">{deptLabelFor(e)}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Dropdown results — opens to the right to avoid going off the bottom of the page */}
-            {searchOpen && searchResults.length > 0 && (
-              <div className="absolute left-full top-0 ml-2 z-20 w-72 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
-                <div className="max-h-48 overflow-y-auto">
-                  {searchResults.map((e) => {
-                    const picked = partnerIds.includes(e.id);
-                    const color = colorForName(e.name);
-                    return (
-                      <button
-                        key={e.id}
-                        type="button"
-                        onMouseDown={(ev) => { ev.preventDefault(); togglePartner(e.id); setSearch(""); setSearchOpen(false); }}
-                        className={`w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-indigo-50 transition-colors ${picked ? "bg-indigo-50" : ""}`}
-                      >
-                        <span className="flex items-center gap-2">
-                          <span className={`w-2 h-2 rounded-full ${color.dot}`} />
-                          <span className="font-medium text-gray-800">{e.name}</span>
-                        </span>
-                        <span className="text-xs text-gray-400">{deptLabelFor(e)}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
+            {/* Selected cross-dept partner pills */}
+            {selectedOtherPartners.map((e) => {
+              const color = colorForName(e.name);
+              return (
+                <span
+                  key={e.id}
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${color.bg} ${color.text} ${color.border}`}
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full ${color.dot}`} />
+                  {e.name}
+                  <button
+                    type="button"
+                    onClick={() => togglePartner(e.id)}
+                    className="ml-0.5 hover:opacity-60 leading-none"
+                  >
+                    ×
+                  </button>
+                </span>
+              );
+            })}
           </div>
         </div>
       </form>
