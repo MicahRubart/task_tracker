@@ -5,6 +5,7 @@ import { addNote } from "@/app/actions/notes";
 import { linkTasks, unlinkTasks } from "@/app/actions/links";
 import { formatDateTime, formatDate } from "@/lib/utils";
 import { LinkTaskModal } from "./LinkTaskModal";
+import { TaskChecklist } from "./TaskChecklist";
 import type { FullTask } from "@/lib/types";
 
 interface Props {
@@ -160,6 +161,12 @@ export function TaskDetail({ task, currentEmployeeId }: Props) {
             </div>
           )}
         </div>
+
+        <TaskChecklist
+          taskId={task.id}
+          items={task.checklistItems}
+          currentEmployeeId={currentEmployeeId}
+        />
 
         <div>
           <div className="flex items-center justify-between mb-2">

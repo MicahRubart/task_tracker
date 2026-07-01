@@ -18,6 +18,7 @@ const FULL_INCLUDE = {
   dueDateHistory: { include: { changedBy: true }, orderBy: { changedAt: "asc" as const } },
   linksFrom: { include: { targetTask: { include: { employee: true } } } },
   linksTo: { include: { sourceTask: { include: { employee: true } } } },
+  checklistItems: { orderBy: { sortOrder: "asc" as const } },
 };
 
 export async function getTasksForDept(department: Department) {

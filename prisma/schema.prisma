@@ -47,6 +47,7 @@ model Task {
   dueDateHistory DueDateHistory[]
   linksFrom      TaskLink[]       @relation("LinkSource")
   linksTo        TaskLink[]       @relation("LinkTarget")
+  checklistItems ChecklistItem[]
 }
 
 model TaskPartner {
@@ -88,6 +89,17 @@ model TaskLink {
   linkType     LinkType @default(RELATES_TO)
   sourceTask   Task     @relation("LinkSource", fields: [sourceTaskId], references: [id], onDelete: Cascade)
   targetTask   Task     @relation("LinkTarget", fields: [targetTaskId], references: [id], onDelete: Cascade)
+}
+
+model ChecklistItem {
+  id          String    @id @default(cuid())
+  taskId      String
+  task        Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  title       String
+  dueDate     DateTime?
+  completedAt DateTime?
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now())
 }
 
 enum Department {
