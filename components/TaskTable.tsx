@@ -49,10 +49,11 @@ function startOf(unit: "day" | "week" | "month"): Date {
 interface Props {
   tasks: FullTask[];
   employees: { id: string; name: string }[];
+  allEmployees: { id: string; name: string; departments?: string[] }[];
   goals: Goal[];
 }
 
-export function TaskTable({ tasks, employees, goals }: Props) {
+export function TaskTable({ tasks, employees, allEmployees, goals }: Props) {
   const colorMap = useMemo(() => buildColorMap(employees), [employees]);
 
   const [isAdmin, setIsAdmin]                 = useState(false);
@@ -335,7 +336,7 @@ export function TaskTable({ tasks, employees, goals }: Props) {
               </tr>
             )}
             {active.map((task) => (
-              <TaskRow key={task.id} task={task} employees={employees} isAdmin={isAdmin} colorMap={colorMap} />
+              <TaskRow key={task.id} task={task} employees={employees} allEmployees={allEmployees} isAdmin={isAdmin} colorMap={colorMap} />
             ))}
 
             {/* Completed section divider */}
@@ -368,7 +369,7 @@ export function TaskTable({ tasks, employees, goals }: Props) {
 
             {/* Completed tasks (collapsed by default) */}
             {showCompleted && completed.map((task) => (
-              <TaskRow key={task.id} task={task} employees={employees} isAdmin={isAdmin} colorMap={colorMap} />
+              <TaskRow key={task.id} task={task} employees={employees} allEmployees={allEmployees} isAdmin={isAdmin} colorMap={colorMap} />
             ))}
           </tbody>
         </table>

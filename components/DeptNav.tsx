@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { DEPARTMENTS } from "@/lib/departments";
+import { NotificationBell } from "./NotificationBell";
 
 export function DeptNav() {
   const pathname = usePathname();
@@ -44,6 +45,11 @@ export function DeptNav() {
         </svg>
         Work History
       </Link>
+
+      {/* Notification bell — sits beside Work History */}
+      <div className="flex items-center ml-1 pb-0.5">
+        <NotificationBell />
+      </div>
     </nav>
   );
 }

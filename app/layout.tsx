@@ -47,6 +47,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <main className="flex-1 flex flex-col overflow-hidden">
           {children}
         </main>
+
       </body>
     </html>
   );

@@ -13,12 +13,12 @@ import type { FullTask } from "@/lib/types";
 interface Props {
   task: FullTask;
   employees: { id: string; name: string }[];
+  allEmployees: { id: string; name: string; departments?: string[] }[];
   isAdmin: boolean;
   colorMap: Record<string, number>;
 }
 
-
-export function TaskRow({ task, employees, isAdmin, colorMap }: Props) {
+export function TaskRow({ task, employees, allEmployees, isAdmin, colorMap }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [editingTitle, setEditingTitle] = useState(false);
   const [showDateModal, setShowDateModal]     = useState(false);
@@ -230,7 +230,7 @@ export function TaskRow({ task, employees, isAdmin, colorMap }: Props) {
       {expanded && (
         <tr className="bg-gray-50">
           <td colSpan={8} className="p-0">
-            <TaskDetail task={task} currentEmployeeId={currentEmployeeId} />
+            <TaskDetail task={task} currentEmployeeId={currentEmployeeId} allEmployees={allEmployees} />
           </td>
         </tr>
       )}

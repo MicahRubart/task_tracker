@@ -241,6 +241,28 @@ export async function getCompletedTasksForEmployee(employeeId: string) {
   }
 }
 
+export async function addPartnerToTask(taskId: string, employeeId: string) {
+  try {
+    const existing = await db.task.findUniqueOrThrow({ where: { id: taskId } });
+    await db.taskPartner.create({ data: { taskId, employeeId } });
+    revalidateDept(existing.department);
+  } catch (err) {
+    console.error("[addPartnerToTask]", err);
+    throw err;
+  }
+}
+
+export async function removePartnerFromTask(taskId: string, employeeId: string) {
+  try {
+    const existing = await db.task.findUniqueOrThrow({ where: { id: taskId } });
+    await db.taskPartner.delete({ where: { taskId_employeeId: { taskId, employeeId } } });
+    revalidateDept(existing.department);
+  } catch (err) {
+    console.error("[removePartnerFromTask]", err);
+    throw err;
+  }
+}
+
 export async function deleteTask(taskId: string) {
   try {
     const existing = await db.task.findUniqueOrThrow({ where: { id: taskId } });

@@ -30,7 +30,7 @@ export default async function DeptPage({ params }: Props) {
     <div className="flex flex-col flex-1 overflow-hidden">
       <AdminGoalManager department={department} goals={goals} />
       <div className="flex-1 overflow-hidden flex flex-col">
-        <TaskTable tasks={tasks} employees={employees} goals={goals} />
+        <TaskTable tasks={tasks} employees={employees} allEmployees={allEmployees} goals={goals} />
       </div>
       <AddTaskBar department={department} employees={employees} allEmployees={allEmployees} goals={goals} />
     </div>
