@@ -90,9 +90,12 @@ export function TaskChecklist({ taskId, items, currentEmployeeId }: Props) {
         {!adding && (
           <button
             onClick={() => { setAdding(true); setTimeout(() => inputRef.current?.focus(), 50); }}
-            className="text-xs text-indigo-600 hover:text-indigo-800 font-medium"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors shadow-sm"
           >
-            + Add item
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" />
+            </svg>
+            Add item
           </button>
         )}
       </div>

@@ -278,8 +278,11 @@ export function TaskDetail({ task, currentEmployeeId, allEmployees }: Props) {
         <div>
           <div className="flex items-center justify-between mb-2">
             <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Linked Tasks</h4>
-            <button onClick={() => setShowLinkModal(true)} className="text-xs text-indigo-600 hover:text-indigo-800 font-medium">
-              + Link task
+            <button onClick={() => setShowLinkModal(true)} className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors shadow-sm">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" />
+              </svg>
+              Link task
             </button>
           </div>
           {allLinks.length === 0 ? (
