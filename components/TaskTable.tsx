@@ -20,7 +20,8 @@ const STATUS_FILTER_OPTIONS: { value: TaskStatus | "all"; label: string }[] = [
   { value: "STUCK",       label: "Stuck"         },
   { value: "ON_TRACK",    label: "On Track"      },
   { value: "OFF_TRACK",   label: "Off Track"     },
-  { value: "ESCALATED",   label: "Escalated"     },
+  { value: "ESCALATED",         label: "Escalated"           },
+  { value: "COMPLETED_ONGOING", label: "Completed: Ongoing"   },
 ];
 
 const DUE_DATE_OPTIONS: { value: DueDateFilter; label: string }[] = [
@@ -158,6 +159,14 @@ export function TaskTable({ tasks, employees, allEmployees, goals }: Props) {
       } else if (sortKey === "status")   cmp = a.status.localeCompare(b.status);
       else if (sortKey === "updatedAt")  cmp = new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime();
       return sortDir === "asc" ? cmp : -cmp;
+    });
+
+    // COMPLETED_ONGOING stays in active but sorts to the very bottom
+    list.sort((a, b) => {
+      const aOngoing = a.status === "COMPLETED_ONGOING" ? 1 : 0;
+      const bOngoing = b.status === "COMPLETED_ONGOING" ? 1 : 0;
+      if (aOngoing !== bOngoing) return aOngoing - bOngoing;
+      return 0; // preserve existing sort order among same group
     });
 
     return {

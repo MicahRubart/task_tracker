@@ -19,7 +19,8 @@ const STATUS_OPTIONS: { value: TaskStatus; label: string; color: string }[] = [
   { value: "OFF_TRACK",   label: "Off Track",   color: "border-orange-300 text-orange-700"   },
   { value: "STUCK",       label: "Stuck",       color: "border-red-300 text-red-700"      },
   { value: "ESCALATED",   label: "Escalated",   color: "border-rose-500 text-rose-700 bg-rose-50" },
-  { value: "COMPLETE",    label: "Completed",   color: "border-violet-300 text-violet-700"  },
+  { value: "COMPLETE",           label: "Completed",          color: "border-violet-300 text-violet-700"  },
+  { value: "COMPLETED_ONGOING", label: "Completed: Ongoing", color: "border-teal-300 text-teal-700"      },
 ];
 
 // Default stuck deadline = 5 business days from today
@@ -143,6 +144,19 @@ export function ChangeStatusModal({
             </div>
           )}
 
+          {/* Completed: Ongoing callout */}
+          {newStatus === "COMPLETED_ONGOING" && (
+            <div className="bg-teal-50 border border-teal-200 rounded-lg px-3 py-2 flex items-start gap-2">
+              <svg className="w-3.5 h-3.5 text-teal-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              <p className="text-xs text-teal-700">
+                The goal has been achieved, but this task remains active for ongoing monitoring. It will stay visible in the main task list.
+              </p>
+            </div>
+          )}
+
           {/* Escalated callout */}
           {newStatus === "ESCALATED" && (
             <div className="bg-rose-50 border border-rose-200 rounded-lg px-3 py-2 flex items-start gap-2">
@@ -166,7 +180,8 @@ export function ChangeStatusModal({
               placeholder={
                 newStatus === "STUCK"      ? "What is blocking this task?" :
                 newStatus === "ESCALATED"  ? "What decision or action is needed from leadership?" :
-                newStatus === "COMPLETE"   ? "Any final notes on completion?" :
+                newStatus === "COMPLETE"           ? "Any final notes on completion?" :
+                newStatus === "COMPLETED_ONGOING"  ? "What are you monitoring going forward?" :
                 "Why is the status changing?"
               }
               rows={3}

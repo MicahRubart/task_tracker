@@ -38,6 +38,11 @@ const config: Record<TaskStatus, { label: string; className: string; dot: string
     className: "bg-violet-100 text-violet-700 border border-violet-200",
     dot: "bg-violet-500",
   },
+  COMPLETED_ONGOING: {
+    label: "Completed: Ongoing",
+    className: "bg-teal-100 text-teal-700 border border-teal-200",
+    dot: "bg-teal-500",
+  },
 };
 
 export function StatusBadge({ status }: { status: TaskStatus }) {

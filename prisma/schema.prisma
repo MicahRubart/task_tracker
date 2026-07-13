@@ -120,6 +120,7 @@ enum TaskStatus {
   OFF_TRACK
   ESCALATED
   COMPLETE
+  COMPLETED_ONGOING
 }
 
 enum NoteType {

@@ -34,6 +34,7 @@ export function TaskRow({ task, employees, allEmployees, isAdmin, colorMap }: Pr
   }, []);
 
   const isComplete       = task.status === "COMPLETE";
+  const isOngoing        = task.status === "COMPLETED_ONGOING";
   const urgency          = getDueUrgency(task.dueDate, isComplete);
   const urgencyStyle     = URGENCY_CELL[urgency];
   const daysUntilLabel   = getDaysUntilLabel(task.dueDate, isComplete);
@@ -131,18 +132,17 @@ export function TaskRow({ task, employees, allEmployees, isAdmin, colorMap }: Pr
           </div>
         </td>
 
-        {/* Due Date — locked or clickable */}
+        {/* Due Date — hidden for Completed: Ongoing */}
         <td
-          className={`py-1 px-1 text-sm whitespace-nowrap ${urgencyStyle.bg}`}
+          className={`py-1 px-1 text-sm whitespace-nowrap ${isOngoing ? "" : urgencyStyle.bg}`}
           onClick={(e) => e.stopPropagation()}
         >
-          {dateLocked ? (
+          {isOngoing ? (
+            <span className="text-xs text-gray-300 px-2">—</span>
+          ) : dateLocked ? (
             /* Locked — show date with a lock icon, not clickable */
             <div className={`flex items-center gap-1.5 px-2 py-1.5 rounded ${urgencyStyle.text}`}>
-              <svg
-                className="w-3 h-3 text-gray-400 shrink-0"
-                fill="currentColor" viewBox="0 0 20 20"
-              >
+              <svg className="w-3 h-3 text-gray-400 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
               </svg>
               <div>
