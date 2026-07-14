@@ -2,11 +2,10 @@
 
 import { useRef, useState } from "react";
 import { addNote } from "@/app/actions/notes";
-import { linkTasks, unlinkTasks } from "@/app/actions/links";
 import { formatDateTime, formatDate } from "@/lib/utils";
-import { LinkTaskModal } from "./LinkTaskModal";
 import { TaskChecklist } from "./TaskChecklist";
 import { TaskPartnerEditor } from "./TaskPartnerEditor";
+import { TaskAttachments } from "./TaskAttachments";
 import type { FullTask } from "@/lib/types";
 
 interface Employee { id: string; name: string; departments?: string[] }
@@ -40,7 +39,6 @@ function renderNoteBody(body: string, employees: Employee[]): React.ReactNode {
 export function TaskDetail({ task, currentEmployeeId, allEmployees }: Props) {
   const [note, setNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [showLinkModal, setShowLinkModal] = useState(false);
 
   // @mention state
   const [mentionQuery, setMentionQuery] = useState<string | null>(null);
@@ -102,17 +100,6 @@ export function TaskDetail({ task, currentEmployeeId, allEmployees }: Props) {
     await addNote(task.id, note.trim(), currentEmployeeId);
     setNote("");
     setSubmitting(false);
-  }
-
-  const allLinks = [
-    ...task.linksFrom.map((l) => ({ id: l.id, linkType: l.linkType, direction: "from" as const, otherTask: l.targetTask })),
-    ...task.linksTo.map((l)   => ({ id: l.id, linkType: l.linkType, direction: "to"   as const, otherTask: l.sourceTask })),
-  ];
-
-  function linkLabel(linkType: string, direction: "from" | "to") {
-    if (linkType === "BLOCKS")     return direction === "from" ? "Blocks" : "Blocked by";
-    if (linkType === "SUBTASK_OF") return direction === "from" ? "Subtask of" : "Parent of";
-    return "Related to";
   }
 
   return (
@@ -275,40 +262,12 @@ export function TaskDetail({ task, currentEmployeeId, allEmployees }: Props) {
           )}
         </div>
 
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Linked Tasks</h4>
-            <button onClick={() => setShowLinkModal(true)} className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors shadow-sm">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" />
-              </svg>
-              Link task
-            </button>
-          </div>
-          {allLinks.length === 0 ? (
-            <p className="text-xs text-gray-400 italic">No linked tasks.</p>
-          ) : (
-            <div className="flex flex-wrap gap-2">
-              {allLinks.map((l) => (
-                <div key={l.id} className="flex items-center gap-1.5 bg-white border border-gray-200 rounded-full px-3 py-1 text-xs">
-                  <span className="text-gray-400">{linkLabel(l.linkType, l.direction)}:</span>
-                  <span className="font-medium text-gray-800">{l.otherTask.title}</span>
-                  <span className="text-gray-400">({l.otherTask.employee.name})</span>
-                  <button onClick={() => unlinkTasks(l.id)} className="ml-1 text-gray-300 hover:text-red-500 leading-none" title="Remove link">×</button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {showLinkModal && (
-        <LinkTaskModal
-          sourceTaskId={task.id}
-          onLink={(targetId, linkType) => { linkTasks(task.id, targetId, linkType); setShowLinkModal(false); }}
-          onClose={() => setShowLinkModal(false)}
+        <TaskAttachments
+          taskId={task.id}
+          attachments={task.attachments}
+          currentEmployeeId={currentEmployeeId}
         />
-      )}
+      </div>
     </div>
   );
 }

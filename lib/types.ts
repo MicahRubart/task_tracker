@@ -1,6 +1,6 @@
 import type {
   Task, Employee, TaskNote, DueDateHistory,
-  TaskLink, TaskPartner, Goal, ChecklistItem,
+  TaskLink, TaskPartner, Goal, ChecklistItem, TaskAttachment,
 } from "@/app/generated/prisma/client";
 
 export type FullTask = Task & {
@@ -12,4 +12,5 @@ export type FullTask = Task & {
   linksFrom: (TaskLink & { targetTask: Task & { employee: Employee } })[];
   linksTo: (TaskLink & { sourceTask: Task & { employee: Employee } })[];
   checklistItems: ChecklistItem[];
+  attachments: (TaskAttachment & { addedBy: Employee })[];
 };

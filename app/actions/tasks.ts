@@ -19,6 +19,7 @@ const FULL_INCLUDE = {
   linksFrom: { include: { targetTask: { include: { employee: true } } } },
   linksTo: { include: { sourceTask: { include: { employee: true } } } },
   checklistItems: { orderBy: { sortOrder: "asc" as const } },
+  attachments: { include: { addedBy: true }, orderBy: { createdAt: "asc" as const } },
 };
 
 export async function getTasksForDept(department: Department) {

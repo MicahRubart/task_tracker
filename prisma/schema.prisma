@@ -17,6 +17,7 @@ model Employee {
   partners    TaskPartner[]
   notes       TaskNote[]
   dateChanges DueDateHistory[]
+  attachments TaskAttachment[]
 }
 
 model Goal {
@@ -48,6 +49,7 @@ model Task {
   linksFrom      TaskLink[]       @relation("LinkSource")
   linksTo        TaskLink[]       @relation("LinkTarget")
   checklistItems ChecklistItem[]
+  attachments    TaskAttachment[]
 }
 
 model TaskPartner {
@@ -89,6 +91,17 @@ model TaskLink {
   linkType     LinkType @default(RELATES_TO)
   sourceTask   Task     @relation("LinkSource", fields: [sourceTaskId], references: [id], onDelete: Cascade)
   targetTask   Task     @relation("LinkTarget", fields: [targetTaskId], references: [id], onDelete: Cascade)
+}
+
+model TaskAttachment {
+  id         String   @id @default(cuid())
+  taskId     String
+  task       Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  title      String
+  url        String
+  addedById  String
+  addedBy    Employee @relation(fields: [addedById], references: [id])
+  createdAt  DateTime @default(now())
 }
 
 model ChecklistItem {
